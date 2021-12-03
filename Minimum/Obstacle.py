@@ -1,4 +1,3 @@
-
 # Starting from Scratch
 print("Python is back on my workflow, let's goooo")
 
@@ -12,3 +11,5 @@ print("Python is back on my workflow, let's goooo")
 # Puzzle 4: 1 + ((floor n * 11 e^8)mod 31) ~ 1 + ((floor(n * (11 * pow(e, 8)))) % 31)
 # Puzzle 5: 1 + ((floor n * 101 e^2)mod 31) ~ 1 + ((floor(n * (101 * pow(e, 2)))) % 31)
 # Puzzle 6: 1 + ((floor n * 101 e^8)mod 31) ~ 1 + ((floor(n * (101 * pow(e, 8)))) % 31)
+
+# Potentially append them onto an array
