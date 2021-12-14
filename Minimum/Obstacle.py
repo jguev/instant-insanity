@@ -1,6 +1,6 @@
 from rich import print as rprint
 from math import floor, pi, e
-from typing import List
+from typing import List, Dict
 
 # Known:
 # Triangular prism, 3 faces
@@ -70,6 +70,75 @@ for n in range(1, 32):
     puzzleSix.append([1 + ((floor(n * (101 * pow(e, 8)))) % 31), 1 + ((floor((n+1)
                      * (101 * pow(e, 8)))) % 31), 1 + ((floor((n+2) * (101 * pow(e, 8)))) % 31)])
 
+# Counting unique occurrences
+checked: Dict[int, List[List[int]]]
+
+
+def rules(puzzle: List[List[int]]) -> bool:
+    #global checked
+    checked = {}
+    counter = 0
+    abides: bool = True
+    for value in puzzle:
+        counter = counter+1
+        rprint("[bold blue]\n\nChecking slice " +
+               str(counter) + "... [/bold blue]\n")
+        # if (face 1) is a unique color place in checked
+        if value[0] not in checked:
+            checked[value[0]] = []
+            rprint("[bold blue]> " + str([value[0]]) +
+                   " Passed! [/bold blue]\n")
+        else:
+            rprint("[red]> Duplicate found: " + str(value[0]) + "[/red]\n")
+        # face 2
+        if value[1] not in checked:
+            checked[value[1]] = []
+            rprint("[bold blue]> " + str([value[1]]) +
+                   " Passed! [/bold blue]\n")
+        else:
+            rprint("[red]> Duplicate found: " + str(value[1]) + "[/red]\n")
+        # face 3
+        if value[2] not in checked:
+            checked[value[2]] = []
+            rprint("[bold blue]> " + str([value[2]]) +
+                   " Passed! [/bold blue]\n")
+        else:
+            rprint("[red]> Duplicate found: " + str(value[2]) + "[/red]\n")
+
+        distinct_values = set(value)
+
+        for dist_value in distinct_values:
+            checked[dist_value].append(value)
+        # if the color has exceeded 3 appearances
+        rule_broken = False
+        if len(checked[value[0]]) > 3:
+            rprint("[bold red]" + str([value[0]]) +
+                   " appeared more than 3 times.[/bold red]\n")
+            rule_broken = True
+        if len(checked[value[1]]) > 3:
+            rprint("[bold red]" + str([value[1]]) +
+                   "  appeared more than 3 times.[/bold red]\n")
+            rule_broken = True
+        if len(checked[value[2]]) > 3:
+            rprint("[bold red]" + str([value[2]]) +
+                   "  appeared more than 3 times.[/bold red]\n")
+            rule_broken = True
+        if (rule_broken == True):
+            abides = False
+    return abides
+
 
 if __name__ == '__main__':
     intro()
+    # rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 1 ~~~~~~~~~~~~ [/bold yellow]")
+    # rules(puzzleOne)
+    # rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 2 ~~~~~~~~~~~~ [/bold yellow]")
+    # rules(puzzleTwo)
+    # rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 3 ~~~~~~~~~~~~ [/bold yellow]")
+    # rules(puzzleThree)
+    # rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 4 ~~~~~~~~~~~~ [/bold yellow]")
+    # rules(puzzleFour)
+    # rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 5 ~~~~~~~~~~~~ [/bold yellow]")
+    # rules(puzzleFive)
+    rprint("\n [bold yellow]~~~~~~~~~~~~ PUZZLE 6 ~~~~~~~~~~~~ [/bold yellow]")
+    rules(puzzleSix)
