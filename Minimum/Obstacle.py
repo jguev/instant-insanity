@@ -9,6 +9,7 @@ from typing import List, Dict
 
 # FACES
 f1: List[int] = []  # front
+# for the purposes of rotation reference f1 is assumed to always be the front/pivot/etc.
 f2: List[int] = []  # back on the right
 f3: List[int] = []  # back on the left
 
@@ -25,7 +26,7 @@ puzzleSix: List[List[int]] = []
 
 def intro():
     rprint("[bold blue]Instant Insanity Puzzle[/bold blue]\n")
-    rprint("[blue]Generating colors with the given contraints ...[/blue]")
+    rprint("[blue]Generating colors with the given constraints ...[/blue]")
 
     slices = len(puzzleOne)
     rprint("[blue]Assigning counterclockwise to " + str(slices) +
@@ -39,17 +40,17 @@ def intro():
     for i in p:
         p_number = p_number+1
         rprint("\n[bold green]Puzzle " + str(p_number) +
-               ": " + f[p_number-1] + "[/bold green]")
+               ": " + f[p_number-1] + "[/bold green]\n")
 
         # prints colors [ color of face 1, color of face 2, color of face 3]
         print(p[p_number-1])
 
-        rprint("\n[bold blue]Puzzle " +
-               str(p_number) + ":[/bold blue]")
+        rprint("\n[bold blue]Before rotations: [/bold blue]")
         if (rules(i) == True):
-            rprint("[bold blue]Solution[/bold blue]\n")
+            rprint("[blue]Solution[/blue]\n")
         else:
-            rprint("[bold blue]No solution[/bold blue]\n")
+            rprint("[blue]No solution.[/blue]\n")
+            rebuildTower(i, p_number)
 
 
 # Colors
@@ -83,7 +84,6 @@ checked: Dict[int, List[List[int]]]
 
 
 def rules(puzzle: List[List[int]]) -> bool:
-    #global checked
     checked = {}
     counter = 0
     # set the puzzle as rule abiding (true) until proven otherwise
@@ -114,9 +114,9 @@ def rules(puzzle: List[List[int]]) -> bool:
         # else:
         #     rprint("[red]> Duplicate found: " + str(value[2]) + "[/red]\n")
 
-        distinct_values = set(value)
+        unique = set(value)
 
-        for dist_value in distinct_values:
+        for dist_value in unique:
             checked[dist_value].append(value)
         # if the color has exceeded 3 appearances
         rule_broken = False
@@ -135,6 +135,91 @@ def rules(puzzle: List[List[int]]) -> bool:
         if (rule_broken == True):
             abides = False
     return abides
+
+########################   FACES  ########################
+
+
+def faces(curr: int):
+    while len(f1) > curr:
+        f1.pop()
+        f2.pop()
+        f3.pop()
+
+########################   TRANSFER  ########################
+# Handle inserting the values into their new positions
+
+
+def transfer(curr: int, side: int, puzzle: List[List[int]]) -> bool:
+    faces(curr)
+
+    if puzzle[curr][side % 3] in f1:
+        return False
+    if puzzle[curr][(side + 1) % 3] in f2:
+        return False
+    if puzzle[curr][(side + 2) % 3] in f3:
+        return False
+
+    if curr >= len(f1):
+        f1.insert(curr, puzzle[curr][side % 3])
+        f2.insert(curr, puzzle[curr][(side + 1) % 3])
+        f3.insert(curr, puzzle[curr][(side + 2) % 3])
+    else:
+        f1[curr] = puzzle[curr][side % 3]
+        f2[curr] = puzzle[curr][(side + 1) % 3]
+        f3[curr] = puzzle[curr][(side + 2) % 3]
+
+    return True
+
+########################   ROTATE  ########################
+#  Values will change within but variable names remain consistent.
+#  Face 1 will always face forward ...
+#   [f1] - [f2] - [f3]
+#   [f3] - [f1] - [f2]
+#   [f2] - [f3] - [f1]
+#   back to start
+
+
+def rotate(curr: int, puzzle: List[List[int]]) -> bool:
+    if curr == len(puzzle):
+        return True
+    else:
+        # (1) 2 3
+        #  1 (2) 3
+        if transfer(curr, 0, puzzle):
+            if rotate(curr + 1, puzzle):
+                return True
+        #  1 (2) 3
+        #  1  2 (3)
+        if transfer(curr, 1, puzzle):
+            if rotate(curr + 1, puzzle):
+                return True
+        #  1 2 (3)
+        # (1) 2 3
+        if transfer(curr, 2, puzzle):
+            if rotate(curr + 1, puzzle):
+                return True
+    # False: Solution does not exist
+        return False
+
+########################   REBUILD TOWER   ########################
+# Input: Tower > No Solution
+# During: Through rotation, a new tower will be rebuilt with a solution
+# Output: 1) Tower > Solution or 2) Tower > Minimum Obstacles
+
+
+def rebuildTower(puzzle: List[List[int]], p_number: int):
+    global implementation
+    if (rules(puzzle) == False):
+        rprint("[bold blue]After rotations: [/bold blue]")
+        if rotate(0, puzzle):
+            # Tower > Solution
+            rprint("[blue]Solution found.[/blue]")
+            print(f1)
+            print(f2)
+            print(f3)
+        else:
+            # Tower > Minimum Obstacles
+            rprint("[blue]No solution. \nNeed to look for minimum obstacles.[/blue]")
 
 
 if __name__ == '__main__':
